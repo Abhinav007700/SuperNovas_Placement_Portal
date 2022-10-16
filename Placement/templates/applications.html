@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link href="/static/applications.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <img src="/static/nitt.jpeg" alt="NITT logo">
+    <div class="Title">
+        <h2>NITT PLACEMENT PORTAL</h2>
+    </div>
+    <div class="nav">
+        <a href="/applications" class="item" id="i1">Applications</a>
+        <a href="/candidates" class="item" id="i2">Recruited Candidates</a>
+        <a href="/rnewcontact" class="item" id="i3">Contact Us</a>
+        <a href="/rsettings" class="item" id="i4">Settings</a>
+        <a href="/rlogout" class="item" id="i5">Log-Out</a>
+    </div>
+    <div class="applications">
+        <h2>Applications</h2>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">CGPA</th>
+                <th scope="col">Resume</th>
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in data %}
+            <tr>
+                <td>{{i.name}}</td>
+                <td>{{i.cgpa}}</td>
+                <td>{{i.rollno}}.pdf</td>
+                <td>
+                    <label class="toggle">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                        <span class="labels" data-on="accept" data-off="reject"></span>
+                    </label>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody> 
+    </table>
+</body>
+</html>

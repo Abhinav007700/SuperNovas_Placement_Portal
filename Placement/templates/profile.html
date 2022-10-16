@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link href="/static/profile.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <img src="/static/nitt.jpeg" alt="NITT logo">
+    <div class="Title">
+        <h2>NITT PLACEMENT PORTAL</h2>
+    </div>
+    <div class="nav">
+        <a href="/profile" class="item" id="i1">Your Profile</a>
+        <a href="/ufile" class="item" id="i2">Upload Files</a>
+        <a href="/newcontact" class="item" id="i3">Contact Us</a>
+        <a href="/settings" class="item" id="i4">Settings</a>
+        <a href="/logout" class="item" id="i5">Log-Out</a>
+    </div>
+    <div class="profile">
+        <h2>Profile</h2>
+    </div>
+    <div class="profile-body">
+        <form class="form" action="{{url_for('profile')}}" method="POST">
+            <input type="text" class="form-data" name="email" placeholder="Enter your email" id="email" required>
+            <br>
+            <input type="text" class="form-data" name="dept" placeholder="Enter your department" id="dept" required>
+            <br>
+            <input type="text" class="form-data" name="degree" placeholder="Enter your degree" id="degree" required>
+            <br>
+            <input type="text" class="form-data" name="year" placeholder="Enter your graduation year" id="year" required>
+            <br>
+            <input type="text" class="form-data" name="cgpa" placeholder="Enter your cgpa" id="cgpa" required>
+            <br>
+            <input type="date" class="form-data" name="date" placeholder="Enter your date of birth" id="date" required>
+            <br>
+            <input type="submit" value="Enter" class="form-btn" name="submit"> 
+        </form>
+        <div id="msg">{{msg}}</div>
+        <p id="goto">After storing data, Goto Upload File</a></p>
+    </div>
+</body>
+</html>

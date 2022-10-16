@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link href="/static/profiledone.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <img src="/static/nitt.jpeg" alt="NITT logo">
+    <div class="Title">
+        <h2>NITT PLACEMENT PORTAL</h2>
+    </div>
+    <div class="nav">
+        <a href="/profile" class="item" id="i1">Your Profile</a>
+        <a href="/ufile" class="item" id="i2">Upload Files</a>
+        <a href="/newcontact" class="item" id="i3">Contact Us</a>
+        <a href="/settings" class="item" id="i4">Settings</a>
+        <a href="/logout" class="item" id="i5">Log-Out</a>
+    </div>
+    <div class="profile">
+        <h2>Profile</h2>
+    </div>
+    <div class="profile-body">
+        <div >Roll Number:- {{data.rollno}}</div>
+        <div >Email:- {{data.email}}</div>
+        <div >Department:- {{data.dept}}</div>
+        <div >Degree:- {{data.degree}}</div>
+        <div >Graduation Year:- {{data.year}}</div>
+        <div >DOB:- {{data.dob}}</div>
+        <div >CGPA:- {{data.cgpa}}</div>
+        <p id="goto">Goto Upload File</a></p>
+    </div>
+</body>
+</html>

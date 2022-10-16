@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="/static/rlogin.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <img src="/static/nitt.jpeg" alt="NITT logo">
+    <div class="Title">
+        <h2>NITT PLACEMENT PORTAL</h2>
+    </div>
+    <div class="nav">
+        <a href="/home" class="item" id="i1">Home</a>
+        <a href="/login" class="item" id="i2">Login</a>
+        <a href="/signup" class="item" id="i3">Sign-Up</a>
+        <a href="/contact" class="item" id="i4">Contact Us</a>
+        <a href="https://www.nitt.edu/" class="item" id="i5">NITT Home</a>
+    </div>
+    <div class="login">
+        <h2>Login</h2>
+    </div>
+    <div class="login-body">
+        <form class="form" action="{{url_for('rlogin')}}" method="POST">
+            <input type="text" class="form-data" name="email" placeholder="Enter your email" id="email" required>
+            <br>
+            <input type="password" class="form-data" name="password" placeholder="Enter your password" id="password" required>
+            <br>
+            <input type="submit" value="Enter" class="form-btn" name="submit"> 
+        </form>
+        <div id="msg">{{msg}}</div>
+        <p id="goto">No account, Goto Sign-up</a></p>
+    </div>
+    <div id="r1">
+        <input type='radio' name="ans" value='student'onclick = "document.location.href='/login'"/>
+        <label for="student">Student</label>
+    </div>
+    <div id="r2">
+        <input type='radio' name="ans" value="recruiter" onclick = "document.location.href='/rlogin'"/>
+        <label for="recruiter">Recruiter</label>
+    </div>
+</body>
+</html>

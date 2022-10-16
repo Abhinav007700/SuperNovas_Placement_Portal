@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link href="/static/signup.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <img src="/static/nitt.jpeg" alt="NITT logo">
+    <div class="Title">
+        <h2>NITT PLACEMENT PORTAL</h2>
+    </div>
+    <div class="nav">
+        <a href="/home" class="item" id="i1">Home</a>
+        <a href="/login" class="item" id="i2">Login</a>
+        <a href="/signup" class="item" id="i3">Sign-Up</a>
+        <a href="/contact" class="item" id="i4">Contact Us</a>
+        <a href="https://www.nitt.edu/" class="item" id="i5">NITT Home</a>
+    </div>
+    <div class="signup">
+        <h2>Sign-Up</h2>
+    </div>
+    <div class="signup-body">
+        <form class="form" action="{{url_for('signup')}}" method="POST">
+            <input type="text" class="form-data" name="rollno" placeholder="Enter your roll number" id="rollno" required>
+            <br>
+            <input type="text" class="form-data" name="name" placeholder="Enter your name" id="name" required>
+            <br>
+            <input type="password" class="form-data" name="password" placeholder="Enter your password" id="password" required>
+            <br>
+            <input type="password" class="form-data" name="confirmpwd" placeholder="Confirm your password" id="confirmpwd" required>
+            <br>
+            <input type="submit" value="Submit" class="form-btn" name="submit"> 
+        </form>
+        <div id="msg">{{msg}}</div>
+        <p id="goto">Already have account, Goto Login</a></p>
+    </div>
+    <div id="r1">
+        <input type='radio' name="ans" value='student'onclick = "document.location.href='/signup'"/>
+        <label for="student">Student</label>
+    </div>
+    <div id="r2">
+        <input type='radio' name="ans" value="recruiter" onclick = "document.location.href='/rsignup'"/>
+        <label for="recruiter">Recruiter</label>
+    </div>
+</body>
+</html>
