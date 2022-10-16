@@ -38,6 +38,16 @@ def home1():
     return render_template('home.html')
 
 
+@app.route('/forgot')
+def forgot():
+    if 'loggedin' in session:
+        if 'rollno' in session:
+            return redirect(url_for('newhome'))
+        elif 'email' in session:
+            return redirect(url_for('rnewhome'))
+    return render_template('forgot.html')
+
+
 @app.route('/newhome')
 def newhome():
     if 'loggedin' in session:
