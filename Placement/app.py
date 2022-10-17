@@ -1,5 +1,7 @@
-from flask import Flask, render_template, request, session, redirect, url_for
+import mimetypes
+from flask import Flask, render_template, request, session, redirect, url_for, send_file
 from flaskext.mysql import MySQL
+from io import BytesIO
 import pymysql
 import re
 import base64
@@ -345,9 +347,24 @@ def applications():
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         msg = ''
         cursor.execute(
-            'SELECT name, cgpa, data.rollno from data, login where data.rollno=login.rollno')
+            'SELECT name, cgpa, data.rollno from data, login ,files where data.rollno=login.rollno and data.rollno=files.rollno')
         datas = cursor.fetchall()
         return render_template('applications.html', data=datas)
+    else:
+        return redirect(url_for('rlogin'))
+
+
+@app.route('/<rollno>')
+def fileshow(rollno):
+    if 'loggedin' in session:
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        msg = ''
+        cursor.execute('SELECT pdf from files where rollno=%s', rollno)
+        file = cursor.fetchone()
+        f = file['pdf']
+        f = base64.b64decode(f)
+        return send_file(BytesIO(f), mimetype="application/pdf", conditional=True)
     else:
         return redirect(url_for('rlogin'))
 
