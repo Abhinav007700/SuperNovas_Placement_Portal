@@ -1,14 +1,10 @@
 from flask import Flask, render_template, request, session, redirect, url_for
 from flaskext.mysql import MySQL
-from werkzeug.utils import secure_filename
 import pymysql
 import re
-import os
+import base64
 app = Flask(__name__)
 app.secret_key = 'supernovas'
-UPLOAD_FOLDER = 'fdata'
-ALLOWED_EXTENSIONS = {'pdf'}
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 mysql = MySQL()
 # MySQL config
 app.config['MYSQL_DATABASE_USER'] = 'root'
@@ -77,6 +73,9 @@ def login():
     if request.method == 'POST' and 'rollno' in request.form and 'password' in request.form:
         rollno = request.form['rollno']
         password = request.form['password']
+        if not re.fullmatch(r'^[0-9]{9}$', rollno):
+            msg = 'Wrong Rollno format!'
+            return render_template('login.html', msg=msg)
         cursor.execute(
             'SELECT * FROM login WHERE rollno = %s AND password = %s', (int(rollno), password))
         account = cursor.fetchone()
@@ -103,6 +102,9 @@ def rlogin():
     if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
         email = request.form['email']
         password = request.form['password']
+        if not re.fullmatch(r'^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$', email):
+            msg = 'Wrong Email format!'
+            return render_template('login.html', msg=msg)
         cursor.execute(
             'SELECT * FROM rlogin WHERE email = %s AND password = %s', (email, password))
         account = cursor.fetchone()
@@ -272,6 +274,8 @@ def profiledone():
             'SELECT * FROM data WHERE rollno = %s', (int(session['rollno'])))
         account = cursor.fetchone()
         return render_template('profiledone.html', data=account)
+    else:
+        return redirect(url_for('login'))
 
 
 @app.route('/newcontact')
@@ -282,29 +286,40 @@ def newcontact():
         return redirect(url_for('login'))
 
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
 @app.route('/ufile', methods=['GET', 'POST'])
 def ufile():
     msg = ''
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
     if 'loggedin' in session:
-        if request.method == 'POST':
-            if 'file' not in request.files:
-                msg = 'no file'
-            file = request.files['file']
-            if file.filename == '':
-                msg = 'no file selected'
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                msg = 'file uploaded successfully'
-                return redirect(url_for('ufile', name=filename))
+        cursor.execute(
+            'SELECT * FROM files WHERE rollno = %s', (int(session['rollno'])))
+        account = cursor.fetchone()
+        if account:
+            return redirect(url_for('doneupload'))
+        else:
+            if request.method == 'POST':
+                if 'file' not in request.files:
+                    msg = 'no file'
+                else:
+                    file = request.files['file']
+                    f = file.read()
+                    f = base64.b64encode(f)
+                    cursor.execute('INSERT INTO files VALUES(%s,%s)',
+                                   (int(session['rollno']), f))
+                    conn.commit()
+                    msg = 'File successfully stored'
     else:
         return redirect(url_for('login'))
     return render_template('ufile.html', msg=msg)
+
+
+@app.route('/doneupload')
+def doneupload():
+    if 'loggedin' in session:
+        return render_template('doneupload.html')
+    else:
+        return redirect(url_for('login'))
 
 
 @app.route('/rnewcontact')
