@@ -48,7 +48,7 @@ body{
 #i5{
     left: 27%;
 }
-.contact{
+.adminlogin{
     background-color: #FCEEE3;
     text-align: center;
     width: 200px;
@@ -60,25 +60,41 @@ body{
     top: 33%;
     left: 43%;
 }
-.content{
+.login-body{
     position:absolute;
-    top: 50%;
-    left: 23%;
-    width: 800px;
-    height: 7%;
-    border-radius: 16px;
-    background-color: #f0ba80;
-    line-height: 0.8;
-    padding: 10px;
+    top:43%;
+    left: 37%;
 }
-.content1{
-    position:absolute;
-    top: 66%;
-    left: 23%;
-    width: 800px;
-    height: 7%;
+.form-data{
+    background-color: rgb(93, 250, 242);
+    width: 350px;
+    height: 40px;
     border-radius: 16px;
-    background-color: #f0ba80;
-    line-height: 0.8;
-    padding: 10px;
+    font-weight: bold;
+    text-align:center;
+}
+#email{
+    position:absolute;
+    top: 35%;
+}
+#password{
+    position:absolute;
+    top: 100px;
+}
+.form-btn{
+    border-radius: 16px;
+    font-weight: bold;
+    text-align:center;
+    position:absolute;
+    top: 200px;
+    left: 150px;
+    height: 40px;
+    width: 80px;
+    background-color: #fdba86;
+}
+#msg{
+    position: fixed;
+    top: 600px;
+    left: 650px;
+    color: red;
 }

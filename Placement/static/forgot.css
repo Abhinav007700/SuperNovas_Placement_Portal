@@ -20,10 +20,10 @@ body{
 .nav{
     background-color: #977046;
     border-radius: 16px;
-    width: 870px;
+    width: 950px;
     height:65px;
     position:absolute;
-    left: 23%;
+    left: 21%;
 }
 .item{
     color: black;

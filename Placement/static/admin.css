@@ -20,10 +20,10 @@ body{
 .nav{
     background-color: #977046;
     border-radius: 16px;
-    width: 950px;
+    width: 870px;
     height:65px;
     position:absolute;
-    left: 21%;
+    left: 23%;
 }
 .item{
     color: black;
@@ -44,41 +44,4 @@ body{
 }
 #i4{
     left: 22%;
-}
-#i5{
-    left: 27%;
-}
-.contact{
-    background-color: #FCEEE3;
-    text-align: center;
-    width: 200px;
-    height:50px;
-    border-radius: 16px;
-    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    line-height: 0.5;
-    position: absolute;
-    top: 33%;
-    left: 43%;
-}
-.content{
-    position:absolute;
-    top: 50%;
-    left: 23%;
-    width: 800px;
-    height: 7%;
-    border-radius: 16px;
-    background-color: #f0ba80;
-    line-height: 0.8;
-    padding: 10px;
-}
-.content1{
-    position:absolute;
-    top: 66%;
-    left: 23%;
-    width: 800px;
-    height: 7%;
-    border-radius: 16px;
-    background-color: #f0ba80;
-    line-height: 0.8;
-    padding: 10px;
 }
