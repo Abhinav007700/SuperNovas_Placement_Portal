@@ -12,6 +12,9 @@ body{
     top: 50%;
     left: 37%;
 }
+.mySlides{
+    display: none;
+}
 .Title{
     background-color: #FCEEE3;
     text-align: center;
