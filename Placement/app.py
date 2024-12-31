@@ -1,22 +1,19 @@
-import mysql.connector
-from mysql.connector import Error
 import mimetypes
 from flask import Flask, render_template, request, session, redirect, url_for, send_file
-# from flask_mysqldb import MySQL
+from flaskext.mysql import MySQL
 from io import BytesIO
 import pymysql
 import re
 import base64
-
 app = Flask(__name__)
 app.secret_key = 'supernovas'
-
-connection = mysql.connector.connect(
-        host='localhost',
-        database='placement',
-        user='root',
-        password='root'
-)
+mysql = MySQL()
+# MySQL config
+app.config['MYSQL_DATABASE_USER'] = 'root'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'root'
+app.config['MYSQL_DATABASE_DB'] = 'placement'
+app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+mysql.init_app(app)
 
 
 @app.route('/')
@@ -30,6 +27,7 @@ def home():
             return redirect(url_for('admin'))
     return render_template('home.html')
 
+
 @app.route('/home')
 def home1():
     if 'loggedin' in session:
@@ -41,6 +39,7 @@ def home1():
             return redirect(url_for('admin'))
     return render_template('home.html')
 
+
 @app.route('/forgot')
 def forgot():
     if 'loggedin' in session:
@@ -51,6 +50,7 @@ def forgot():
         elif 'aemail' in session:
             return redirect(url_for('admin'))
     return render_template('forgot.html')
+
 
 @app.route('/newhome')
 def newhome():
@@ -64,6 +64,7 @@ def newhome():
     else:
         return redirect(url_for('login'))
 
+
 @app.route('/rnewhome')
 def rnewhome():
     if 'loggedin' in session:
@@ -76,6 +77,7 @@ def rnewhome():
     else:
         return redirect(url_for('rlogin'))
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'loggedin' in session:
@@ -85,6 +87,8 @@ def login():
             return redirect(url_for('rnewhome'))
         elif 'aemail' in session:
             return redirect(url_for('admin'))
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
     msg = ''
     if request.method == 'POST' and 'rollno' in request.form and 'password' in request.form:
         rollno = request.form['rollno']
@@ -92,8 +96,8 @@ def login():
         if not re.fullmatch(r'^[0-9]{9}$', rollno):
             msg = 'Wrong Rollno format!'
             return render_template('login.html', msg=msg)
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute('SELECT * FROM login WHERE rollno = %s AND password = %s', (int(rollno), password))
+        cursor.execute(
+            'SELECT * FROM login WHERE rollno = %s AND password = %s', (int(rollno), password))
         account = cursor.fetchone()
         if account:
             session['loggedin'] = True
@@ -104,6 +108,7 @@ def login():
             msg = 'Incorrect rollnumber/password!'
     return render_template('login.html', msg=msg)
 
+
 @app.route('/alogin', methods=['GET', 'POST'])
 def alogin():
     if 'loggedin' in session:
@@ -113,6 +118,8 @@ def alogin():
             return redirect(url_for('rnewhome'))
         elif 'aemail' in session:
             return redirect(url_for('admin'))
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
     msg = ''
     if request.method == 'POST' and 'aemail' in request.form and 'password' in request.form:
         email = request.form['aemail']
@@ -120,11 +127,9 @@ def alogin():
         if not re.fullmatch(r'^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$', email):
             msg = 'Wrong Email format!'
             return render_template('login.html', msg=msg)
-        cursor = connection.cursor(dictionary=True)
-        print(email,password)
-        cursor.execute('SELECT * FROM alogin WHERE email = %s AND password = %s', (email, password))
+        cursor.execute(
+            'SELECT * FROM alogin WHERE email = %s AND password = %s', (email, password))
         account = cursor.fetchone()
-        print(account)
         if account:
             session['loggedin'] = True
             session['aemail'] = account['email']
@@ -132,6 +137,7 @@ def alogin():
         else:
             msg = 'Incorrect rollnumber/password!'
     return render_template('alogin.html', msg=msg)
+
 
 @app.route('/rlogin', methods=['GET', 'POST'])
 def rlogin():
@@ -142,6 +148,8 @@ def rlogin():
             return redirect(url_for('rnewhome'))
         elif 'aemail' in session:
             return redirect(url_for('admin'))
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
     msg = ''
     if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
         email = request.form['email']
@@ -149,10 +157,9 @@ def rlogin():
         if not re.fullmatch(r'^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$', email):
             msg = 'Wrong Email format!'
             return render_template('rlogin.html', msg=msg)
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute('SELECT * FROM rlogin WHERE email = %s AND password = %s', (email, password))
+        cursor.execute(
+            'SELECT * FROM rlogin WHERE email = %s AND password = %s', (email, password))
         account = cursor.fetchone()
-        print(account)
         if account:
             session['loggedin'] = True
             session['email'] = account['email']
@@ -160,7 +167,8 @@ def rlogin():
             return redirect(url_for('rnewhome'))
         else:
             msg = 'Incorrect rollnumber/password!'
-    return render_template('rlogin.html', msg=msg)
+    return render_template('rlogin.html')
+
 
 @app.route('/admin')
 def admin():
@@ -174,6 +182,7 @@ def admin():
     else:
         return redirect(url_for('alogin'))
 
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if 'loggedin' in session:
@@ -182,14 +191,16 @@ def signup():
         elif 'email' in session:
             return redirect(url_for('rnewhome'))
         elif 'aemail' in session:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
             msg = ''
             if request.method == 'POST' and 'rollno' in request.form and 'password' in request.form and 'name' in request.form and 'confirmpwd' in request.form:
                 name = request.form['name']
                 rollno = request.form['rollno']
                 password = request.form['password']
                 confirmpwd = request.form['confirmpwd']
-                cursor = connection.cursor(dictionary=True)
-                cursor.execute('SELECT * FROM login WHERE rollno = %s', (int(rollno),))
+                cursor.execute(
+                    'SELECT * FROM login WHERE rollno = %s', (int(rollno)))
                 account = cursor.fetchone()
                 if account:
                     msg = 'Acount already exists!'
@@ -197,15 +208,18 @@ def signup():
                     msg = 'Roll Number must be 9 digits!'
                 elif not re.fullmatch(r'^[A-za-z]+$', name):
                     msg = 'Name should only contain characters!'
-                elif password != confirmpwd:
-                    msg = 'Password and Confirm Password do not match!'
+                elif not re.fullmatch(password, confirmpwd):
+                    msg = 'Password and Confirm Password does not match!'
                 else:
-                    cursor.execute('INSERT INTO login VALUES (%s,%s,%s)', (int(rollno), name, password))
-                    mysql.connection.commit()
+                    cursor.execute(
+                        'INSERT INTO login VALUES (%s,%s,%s)',
+                        (int(rollno), name, password))
+                    conn.commit()
                     msg = 'Successfully Signed Up'
         return render_template('signup.html', msg=msg)
     else:
         return redirect(url_for('alogin'))
+
 
 @app.route('/rsignup', methods=['GET', 'POST'])
 def rsignup():
@@ -215,60 +229,35 @@ def rsignup():
         elif 'email' in session:
             return redirect(url_for('rnewhome'))
         elif 'aemail' in session:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
             msg = ''
             if request.method == 'POST' and 'email' in request.form and 'password' in request.form and 'name' in request.form and 'confirmpwd' in request.form:
                 name = request.form['name']
                 email = request.form['email']
                 password = request.form['password']
                 confirmpwd = request.form['confirmpwd']
-                cursor = connection.cursor(dictionary=True)
-                cursor.execute('SELECT * FROM rlogin WHERE email = %s', (email,))
+                cursor.execute(
+                    'SELECT * FROM rlogin WHERE email = %s', (email))
                 account = cursor.fetchone()
                 if account:
                     msg = 'Acount already exists!'
                 elif not re.fullmatch(r'^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$', email):
-                    msg = 'Invalid Email format!'
+                    msg = 'Email format is wrong!'
                 elif not re.fullmatch(r'^[A-za-z]+$', name):
                     msg = 'Name should only contain characters!'
-                elif password != confirmpwd:
-                    msg = 'Password and Confirm Password do not match!'
+                elif not re.fullmatch(password, confirmpwd):
+                    msg = 'Password and Confirm Password does not match!'
                 else:
-                    cursor.execute('INSERT INTO rlogin VALUES (%s,%s,%s)', (email, name, password))
-                    mysql.connection.commit()
+                    cursor.execute(
+                        'INSERT INTO rlogin VALUES (%s,%s,%s)',
+                        (email, name, password))
+                    conn.commit()
                     msg = 'Successfully Signed Up'
         return render_template('rsignup.html', msg=msg)
     else:
         return redirect(url_for('alogin'))
 
-# @app.route('/asignup', methods=['GET', 'POST'])
-# def asignup():
-#     if 'loggedin' in session:
-#         if 'rollno' in session:
-#             return redirect(url_for('newhome'))
-#         elif 'email' in session:
-#             return redirect(url_for('rnewhome'))
-#         elif 'aemail' in session:
-#             msg = ''
-#             if request.method == 'POST' and 'aemail' in request.form and 'password' in request.form and 'confirmpwd' in request.form:
-#                 email = request.form['aemail']
-#                 password = request.form['password']
-#                 confirmpwd = request.form['confirmpwd']
-#                 cursor = connection.cursor(dictionary=True)
-#                 cursor.execute('SELECT * FROM alogin WHERE email = %s', (email))
-#                 account = cursor.fetchone()
-#                 if account:
-#                     msg = 'Acount already exists!'
-#                 elif not re.fullmatch(r'^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$', email):
-#                     msg = 'Invalid Email format!'
-#                 elif password != confirmpwd:
-#                     msg = 'Password and Confirm Password do not match!'
-#                 else:
-#                     cursor.execute('INSERT INTO alogin VALUES (%s,%s)', (email, password))
-#                     mysql.connection.commit()
-#                     msg = 'Successfully Signed Up'
-#         return render_template('asignup.html', msg=msg)
-#     else:
-#         return redirect(url_for('alogin'))
 
 @app.route('/contact')
 def contact():
@@ -280,6 +269,7 @@ def contact():
         elif 'aemail' in session:
             return redirect(url_for('admin'))
     return render_template('contact.html')
+
 
 @app.route('/settings')
 def settings():
@@ -293,14 +283,14 @@ def settings():
     else:
         return redirect(url_for('login'))
 
+
 @app.route('/logout')
 def logout():
     session.pop('loggedin', None)
     session.pop('rollno', None)
     session.pop('name', None)
-    session.pop('email', None)
-    session.pop('aemail', None)
-    return redirect(url_for('home'))
+    return redirect(url_for('login'))
+
 
 @app.route('/rlogout')
 def rlogout():
@@ -321,8 +311,10 @@ def alogout():
 def profile():
     if 'loggedin' in session:
         if 'rollno' in session:
-            cursor = connection.cursor(dictionary=True)
-            cursor.execute('SELECT * FROM data WHERE rollno = %s', (int(session['rollno']),))
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(
+                'SELECT * FROM data WHERE rollno = %s', (int(session['rollno'])))
             account = cursor.fetchone()
             if account:
                 return redirect(url_for('profiledone'))
@@ -335,7 +327,8 @@ def profile():
                     year = request.form['year']
                     cgpa = request.form['cgpa']
                     date = request.form['date']
-                    cursor.execute('SELECT * FROM data WHERE rollno = %s', (int(session['rollno']),))
+                    cursor.execute(
+                        'SELECT * FROM data WHERE rollno = %s', (int(session['rollno'])))
                     account = cursor.fetchone()
                     if account:
                         return redirect(url_for('profiledone'))
@@ -348,7 +341,9 @@ def profile():
                     elif not re.fullmatch(r'^[0-9]{4}$', year):
                         msg = 'Year should have only 4 digits!'
                     else:
-                        cursor.execute('INSERT INTO data VALUES (%s,%s,%s,%s,%s,%s,%s)',(int(session['rollno']), email, dept, degree, int(year), date, float(cgpa)))
+                        cursor.execute(
+                            'INSERT INTO data VALUES (%s,%s,%s,%s,%s,%s,%s)',
+                            (int(session['rollno']), email, dept, degree, int(year), date, float(cgpa)))
                         conn.commit()
                         msg = 'Successfully Data Stored'
                 return render_template('profile.html', msg=msg)
@@ -364,8 +359,10 @@ def profile():
 def profiledone():
     if 'loggedin' in session:
         if 'rollno' in session:
-            cursor = connection.cursor(dictionary=True)
-            cursor.execute('SELECT * FROM data WHERE rollno = %s', (int(session['rollno']),))
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(
+                'SELECT * FROM data WHERE rollno = %s', (int(session['rollno'])))
             account = cursor.fetchone()
             return render_template('profiledone.html', data=account)
         elif 'email' in session:
@@ -392,10 +389,12 @@ def newcontact():
 @app.route('/ufile', methods=['GET', 'POST'])
 def ufile():
     msg = ''
-    cursor = connection.cursor(dictionary=True)
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
     if 'loggedin' in session:
         if 'rollno' in session:
-            cursor.execute('SELECT * FROM files WHERE rollno = %s', (int(session['rollno']),))
+            cursor.execute(
+                'SELECT * FROM files WHERE rollno = %s', (int(session['rollno'])))
             account = cursor.fetchone()
             if account:
                 return redirect(url_for('doneupload'))
@@ -407,7 +406,8 @@ def ufile():
                         file = request.files['file']
                         f = file.read()
                         f = base64.b64encode(f)
-                        cursor.execute('INSERT INTO files VALUES(%s,%s)',(int(session['rollno']), f))
+                        cursor.execute('INSERT INTO files VALUES(%s,%s)',
+                                       (int(session['rollno']), f))
                         conn.commit()
                         msg = 'File successfully stored'
         elif 'email' in session:
@@ -465,9 +465,11 @@ def applications():
         if 'rollno' in session:
             return redirect(url_for('newhome'))
         elif 'email' in session:
-            cursor = connection.cursor(dictionary=True)
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
             msg = ''
-            cursor.execute('SELECT name, cgpa, data.rollno from data, login ,files where data.rollno=login.rollno and data.rollno=files.rollno')
+            cursor.execute(
+                'SELECT name, cgpa, data.rollno from data, login ,files where data.rollno=login.rollno and data.rollno=files.rollno')
             datas = cursor.fetchall()
             return render_template('applications.html', data=datas)
         elif 'aemail' in session:
@@ -482,9 +484,10 @@ def fileshow(rollno):
         if 'rollno' in session:
             return redirect(url_for('newhome'))
         elif 'email' in session:
-            cursor = connection.cursor(dictionary=True)
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
             msg = ''
-            cursor.execute('SELECT pdf from files where rollno=%s', (rollno,))
+            cursor.execute('SELECT pdf from files where rollno=%s', rollno)
             file = cursor.fetchone()
             f = file['pdf']
             f = base64.b64decode(f)
@@ -512,20 +515,23 @@ def edit():
 def change():
     if 'loggedin' in session:
         if 'rollno' in session:
-            cursor = connection.cursor(dictionary=True)
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
             msg = ''
             if request.method == 'POST' and 'password' in request.form and 'password1' in request.form and 'password2' in request.form:
                 password = request.form['password']
                 password1 = request.form['password1']
                 password2 = request.form['password2']
-                cursor.execute('SELECT password from login where rollno=%s', (session['rollno'],))
+                cursor.execute(
+                    'SELECT password from login where rollno=%s', (session['rollno']))
                 account = cursor.fetchone()
                 if account['password'] != password:
                     msg = 'Wrong current password!'
                 elif not re.fullmatch(password1, password2):
                     msg = 'Re-enter password is not same'
                 else:
-                    cursor.execute('UPDATE login SET password=%s WHERE rollno = %s', (password1, int(session['rollno'])))
+                    cursor.execute(
+                        'UPDATE login SET password=%s WHERE rollno = %s', (password1, int(session['rollno'])))
                     conn.commit()
                     msg = 'Successfully changed'
                 return render_template('change.html', msg=msg)
@@ -544,20 +550,23 @@ def rchange():
         if 'rollno' in session:
             return redirect(url_for('newhome'))
         elif 'email' in session:
-            cursor = connection.cursor(dictionary=True)
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
             msg = ''
             if request.method == 'POST' and 'password' in request.form and 'password1' in request.form and 'password2' in request.form:
                 password = request.form['password']
                 password1 = request.form['password1']
                 password2 = request.form['password2']
-                cursor.execute('SELECT password from rlogin where email=%s', (session['email'],))
+                cursor.execute(
+                    'SELECT password from rlogin where email=%s', (session['email']))
                 account = cursor.fetchone()
                 if account['password'] != password:
                     msg = 'Wrong current password!'
                 elif not re.fullmatch(password1, password2):
                     msg = 'Re-enter password is not same'
                 else:
-                    cursor.execute('UPDATE rlogin SET password=%s WHERE email = %s', (password1, session['email']))
+                    cursor.execute(
+                        'UPDATE rlogin SET password=%s WHERE email = %s', (password1, session['email']))
                     conn.commit()
                     msg = 'Successfully changed'
                 return render_template('rchange.html', msg=msg)
@@ -579,6 +588,3 @@ def candidates():
             return redirect(url_for('admin'))
     else:
         return redirect(url_for('rlogin'))
-
-if __name__ == "__main__":
-    app.run(debug=True)

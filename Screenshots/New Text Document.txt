@@ -1,6 +1,0 @@
-if 'rollno' in session:
-            return redirect(url_for('newhome'))
-        elif 'email' in session:
-            return redirect(url_for('rnewhome'))
-        elif 'aemail' in session:
-            return redirect(url_for('admin'))
